@@ -1,4 +1,5 @@
 import React, { Component, useState } from "react";
+import mojs from "mo-js";
 import Styles from "./index.css";
 
 const initalState = {
@@ -7,12 +8,63 @@ const initalState = {
   isClicked: false,
 };
 
-const MediumClap = () => {
+// HOC
+
+const withClapAnimation = (WrappedComponent) => {
+  class WithClapAnimation extends Component {
+    animattionTimeLine = new mojs.Timeline();
+    state = {
+      animattionTimeLine: this.animattionTimeLine,
+    };
+
+    componentDidMount() {
+      const tlDuration = 300;
+      const scaleButton = new mojs.Html({
+        el: "#clap",
+        duration: 300,
+        scale: { 1.3: 1 },
+        easing: mojs.easing.ease.out,
+      });
+
+      const countTotalAnimation = new mojs.Html({
+        el: "#clapCaountTotal",
+        opacity: { 0: 1 },
+        delay: (3 * tlDuration) / 2,
+        duration: tlDuration,
+        y: { 0: -3 },
+      });
+
+      const clap = document.getElementById("clap");
+      clap.style.transform = "scale(1,1)";
+      const newAnimationTimeLine = this.animattionTimeLine.add([
+        scaleButton,
+        countTotalAnimation,
+      ]);
+      this.setState(
+        () => (this.state.animattionTimeLine = newAnimationTimeLine)
+      );
+    }
+
+    render() {
+      return (
+        <WrappedComponent
+          {...this.props}
+          animattionTimeLine={this.state.animattionTimeLine}
+        />
+      );
+    }
+  }
+
+  return WithClapAnimation;
+};
+
+const MediumClap = ({ animattionTimeLine }) => {
   const MAX_USER_CLAP = 15;
   const [clapState, setClapState] = useState(initalState);
   const { count, countTotal, isClicked } = clapState;
 
   const hendlerClapClick = () => {
+    animattionTimeLine.replay();
     setClapState((prevState) => ({
       isClicked: true,
       count: Math.min(count + 1, MAX_USER_CLAP),
@@ -22,7 +74,7 @@ const MediumClap = () => {
   };
 
   return (
-    <button className={Styles.clap} onClick={hendlerClapClick}>
+    <button id="clap" className={Styles.clap} onClick={hendlerClapClick}>
       <ClapIcon isClicked={isClicked} />
       <ClapCount count={count} />
       <CountTotal countTotal={countTotal} />
@@ -51,7 +103,18 @@ const ClapCount = ({ count }) => {
 };
 
 const CountTotal = ({ countTotal }) => {
-  return <span className={Styles.total}>{countTotal}</span>;
+  return (
+    <span id="clapCaountTotal" className={Styles.total}>
+      {countTotal}
+    </span>
+  );
 };
 
-export default MediumClap;
+// Usage
+
+const Usage = () => {
+  const AnimatedMediumClap = withClapAnimation(MediumClap);
+  return <AnimatedMediumClap />;
+};
+
+export default Usage;

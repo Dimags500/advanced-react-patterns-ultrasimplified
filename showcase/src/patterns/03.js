@@ -1,10 +1,4 @@
-import React, {
-  Component,
-  useState,
-  useEffect,
-  useCallback,
-  Children,
-} from "react";
+import React, { Component, useState, useEffect, useCallback } from "react";
 import mojs from "mo-js";
 import Styles from "./index.css";
 
@@ -14,7 +8,7 @@ const initalState = {
   isClicked: false,
 };
 
-// Custom Hook for Animation
+// Compound Components
 
 const useClapAnimation = ({ clapEl, countEl, clapTotalEl }) => {
   const [animattionTimeLine, setAnimattionTimeLine] = useState(
@@ -52,35 +46,65 @@ const useClapAnimation = ({ clapEl, countEl, clapTotalEl }) => {
       delay: tlDuration / 2,
     });
 
+    const triangleBurst = new mojs.Burst({
+      parent: clapEl,
+      radius: { 50: 95 },
+      count: 5,
+      angle: 30,
+      children: {
+        shape: "polygon",
+        redius: { 6: 0 },
+        stroke: "rgba(211,54,0,0.5)",
+        strokeWidth: 2,
+        angle: 210,
+        delay: 30,
+        speed: 0.2,
+        easing: mojs.easing.bezier(0.1, 1, 0.3, 1),
+        duration: tlDuration,
+      },
+    });
+
+    const circleBurst = new mojs.Burst({
+      parent: clapEl,
+      radius: { 50: 75 },
+      angle: 25,
+      buration: tlDuration,
+      children: {
+        shape: "circle",
+        fill: "rgb(149,165,166,0.5)",
+        delay: 0.2,
+        radius: { 3: 0 },
+        easing: mojs.easing.bezier(0.1, 1, 0.3, 1),
+      },
+    });
+
     if (typeof clapEl === "string") {
       const clap = document.getElementById("clap");
       clap.style.transform = "scale(1,1)";
     } else {
-      clap.style.transform = "scale(1,1)";
+      clapEl.style.transform = "scale(1,1)";
     }
 
     const newAnimationTimeLine = animattionTimeLine.add([
       scaleButton,
       countTotalAnimation,
       countAnimation,
+      triangleBurst,
+      circleBurst,
     ]);
     setAnimattionTimeLine(newAnimationTimeLine);
   }, [clapEl, countEl, clapTotalEl]);
 
   return animattionTimeLine;
 };
-const MediumClapContex = React.createContext();
-const { Provider } = MediumClapContex;
+
+const MedumClapContex = React.createContext();
+const { Provider } = MedumClapContex;
 
 const MediumClap = ({ children }) => {
   const MAX_USER_CLAP = 15;
   const [clapState, setClapState] = useState(initalState);
   const { count, countTotal, isClicked } = clapState;
-  const animattionTimeLine = useClapAnimation({
-    clapEl: clapRef,
-    countEl: clapCountRef,
-    clapTotal: clapCountTotalRef,
-  });
 
   const [{ clapRef, clapCountRef, clapCountTotalRef }, setRefState] = useState(
     {}
@@ -91,6 +115,12 @@ const MediumClap = ({ children }) => {
       [node.dataset.refkey]: node,
     }));
   }, []);
+
+  const animattionTimeLine = useClapAnimation({
+    clapEl: clapRef,
+    countEl: clapCountRef,
+    clapTotalEl: clapCountTotalRef,
+  });
 
   const hendlerClapClick = () => {
     animattionTimeLine.replay();
@@ -108,6 +138,7 @@ const MediumClap = ({ children }) => {
     }),
     [clapState, setRef]
   );
+
   return (
     <Provider value={memoizedValue}>
       <button
@@ -115,15 +146,16 @@ const MediumClap = ({ children }) => {
         data-refkey="clapRef"
         className={Styles.clap}
         onClick={hendlerClapClick}
-      ></button>
-      {children}
+      >
+        {children}
+      </button>
     </Provider>
   );
 };
 
 //sub components
 const ClapIcon = () => {
-  const { isClicked } = React.useContext(MediumClapContex);
+  const { isClicked } = React.useContext(MedumClapContex);
   return (
     <span>
       <svg
@@ -139,7 +171,8 @@ const ClapIcon = () => {
 };
 
 const ClapCount = () => {
-  const { count, setRef } = React.useContext(MediumClapContex);
+  const { count, setRef } = React.useContext(MedumClapContex);
+
   return (
     <span ref={setRef} data-refkey="clapCountRef" className={Styles.count}>
       +{count}
@@ -148,7 +181,7 @@ const ClapCount = () => {
 };
 
 const CountTotal = () => {
-  const { countTotal, setRef } = React.useContext(MediumClapContex);
+  const { countTotal, setRef } = React.useContext(MedumClapContex);
 
   return (
     <span ref={setRef} data-refkey="clapCountTotalRef" className={Styles.total}>
@@ -157,13 +190,31 @@ const CountTotal = () => {
   );
 };
 
-// Usage
+// export way 1
+// const Usage = () => {
+//   return (
+//     <MediumClap>
+//       <ClapIcon />
+//       <ClapCount />
+//       <CountTotal />
+//     </MediumClap>
+//   );
+// };
+
+//-------------------------------------------------------------------
+
+// export way 2
+
+MediumClap.Icon = ClapIcon;
+MediumClap.Count = ClapCount;
+MediumClap.Toatl = CountTotal;
+
 const Usage = () => {
   return (
     <MediumClap>
-      <ClapIcon />
-      <ClapCount />
-      <CountTotal />
+      <MediumClap.Icon />
+      <MediumClap.Count />
+      <MediumClap.Toatl />
     </MediumClap>
   );
 };

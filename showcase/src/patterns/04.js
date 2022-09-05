@@ -122,7 +122,7 @@ const MediumClap = ({ children, onClap }) => {
     clapTotalEl: clapCountTotalRef,
   });
 
-  const componentJustMounted = React.useRef(true);
+  const componentJustMounted = useRef(true);
   useEffect(() => {
     if (!componentJustMounted.current) {
       onClap && onClap(clapState);

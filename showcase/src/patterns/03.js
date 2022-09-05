@@ -101,7 +101,7 @@ const useClapAnimation = ({ clapEl, countEl, clapTotalEl }) => {
 const MedumClapContex = React.createContext();
 const { Provider } = MedumClapContex;
 
-const MediumClap = ({ children }) => {
+const MediumClap = ({ children, onClap }) => {
   const MAX_USER_CLAP = 15;
   const [clapState, setClapState] = useState(initalState);
   const { count, countTotal, isClicked } = clapState;
@@ -121,6 +121,10 @@ const MediumClap = ({ children }) => {
     countEl: clapCountRef,
     clapTotalEl: clapCountTotalRef,
   });
+
+  useEffect(() => {
+    onClap && onClap(clapState);
+  }, [count]);
 
   const hendlerClapClick = () => {
     animattionTimeLine.replay();
@@ -210,12 +214,20 @@ MediumClap.Count = ClapCount;
 MediumClap.Toatl = CountTotal;
 
 const Usage = () => {
+  const [count, setCount] = useState(0);
+
+  const handleClap = (clapState) => {
+    setCount(clapState.count);
+  };
   return (
-    <MediumClap>
-      <MediumClap.Icon />
-      <MediumClap.Count />
-      <MediumClap.Toatl />
-    </MediumClap>
+    <div style={{ width: "100%" }}>
+      <MediumClap onClap={handleClap}>
+        <MediumClap.Icon />
+        <MediumClap.Count />
+        <MediumClap.Toatl />
+      </MediumClap>
+      <div className={Styles.info}>{`total clicks ${count}`}</div>
+    </div>
   );
 };
 

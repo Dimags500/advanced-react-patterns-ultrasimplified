@@ -9,6 +9,11 @@
     background: #896EAF; 
 }
 
+ /* icon */ 
+ .icon {
+    background: #b19bcf; 
+}
+
  /* clap */ 
 .clap {
     border: 1px solid #896EAF; 

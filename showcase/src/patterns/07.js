@@ -153,38 +153,6 @@ const useEffectAferMount = (cb, deps) => {
   }, deps);
 };
 
-// const MediumClap = ({ children, style: userStyles = {}, className }) => {
-//   const [clapState, updateClapState] = useClapState();
-//   const { count, countTotal, isClicked } = clapState;
-//   const [{ clapRef, clapCountRef, clapCountTotalRef }, setRef] = useDomRef();
-
-//   const animattionTimeLine = useClapAnimation({
-//     clapEl: clapRef,
-//     countEl: clapCountRef,
-//     clapTotalEl: clapCountTotalRef,
-//   });
-
-//   useEffectAferMount(() => {
-//     animattionTimeLine.replay();
-//   }, [count]);
-
-//   const classNames = [Styles.clap, className].join(" ").trim();
-
-//   return (
-//     <button
-//       ref={setRef}
-//       data-refkey="clapRef"
-//       className={classNames}
-//       onClick={updateClapState}
-//       style={userStyles}
-//     >
-//       <ClapIcon isClicked={isClicked} />
-//       <ClapCount count={count} setRef={setRef} />
-//       <CountTotal countTotal={countTotal} setRef={setRef} />
-//     </button>
-//   );
-// };
-
 //sub components
 
 const ClapContainer = ({ children, setRef, handleClick, ...restProps }) => {
